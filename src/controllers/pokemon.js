@@ -41,7 +41,7 @@ const cadastrarPokemons = async(req,res)=>{
     }      
      
     try{
-        const novoPokemon = await pool.query('INSERT INTO pokemons (nome, habilidades, imagem,apelido,usuario_id) VALUES ($1, $2, $3,$4,$5)', [nome, habilidades, imagem,apelido,usuarioId]);
+        const novoPokemon = await pool.query('INSERT INTO pokemons (nome, habilidades, imagem,apelido,usuario_id) VALUES ($1, $2, $3,$4,$5)pokemons (nome, habilidades, imagem,apelido,usuario_id) VALUES ($1, $2, $3,$4,$5)', [nome, habilidades, imagem,apelido,usuarioId]);
      
         
     return res.status(201).json({ message: 'pokemon cadastrado'  })
@@ -51,9 +51,26 @@ const cadastrarPokemons = async(req,res)=>{
   }
 
 }
+const atualizarPokemon = async (req, res) => {
+    const { apelido } = req.body
+    const { id } = req.params
+
+    if (!apelido) {
+        return res.status(400).json({ message: 'O Apelido é obrigatório' })
+    }
+
+    try {
+        await pool.query('UPDATE pokemons SET apelido = $1 WHERE id = $2', [apelido, id])
+        return res.status(200).json({ message: 'Pokemon atualizado com sucesso' })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: 'Erro ao atualizar pokemon' })
+    }
+}
 
 
 module.exports = {
     listarPokemons,
-    cadastrarPokemons
+    cadastrarPokemons,
+    atualizarPokemon
 }
