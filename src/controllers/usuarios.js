@@ -1,5 +1,7 @@
 const pool = require('../config');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
+ 
 
 const cadastrarUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
@@ -13,6 +15,7 @@ const cadastrarUsuario = async (req, res) => {
     if(buscarEmail.rows.length > 0){
       return res.status(400).json({ message: 'Email já cadastrado' });
     }
+
     const senhaHash = await bcrypt.hash(senha, 10);
     const novoUsuario = await pool.query('INSERT INTO usuarios (nome, email, senha) VALUES ($1, $2, $3)', [nome, email, senhaHash]);
     return res.status(201).json({ message: 'Usuário cadastrado com sucesso' });
@@ -30,10 +33,39 @@ const listarUsuarios = async(req,res)=>{
   return res.status(200).json(resposta.rows)
 }
 
+const login = async (req,res) => {
+   const {email,senha}=req.body
+   if(!email || !senha){
+   return res.status(400).json({ message: 'Email ou senha Inválido' })
+   }
+
+   try {    
+     const buscarUsuario = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email])
+     if(buscarUsuario.rows.length === 0){
+     return res.status(400).json({ message: 'Email ou senha inválidos' })}
+
+     const usuarioValido = await bcrypt.compare(senha, buscarUsuario.rows[0].senha)
+    if(!usuarioValido){
+    return res.status(400).json({ message: 'Email ou senha inválidos' })
+       }
+
+    const token = jwt.sign({ id: buscarUsuario.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '8h' })
+
+     return res.status(200).json({ token })     
+
+   } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Erro ao logar Usuario ' });
+   }
+   
+
+  return res.status(201).json({message:'Rota login rodando'})
+}
    
 
 module.exports = {
     cadastrarUsuario,
-    listarUsuarios
+    listarUsuarios,
+    login 
 }
 
