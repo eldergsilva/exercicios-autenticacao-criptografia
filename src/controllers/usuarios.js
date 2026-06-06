@@ -27,39 +27,48 @@ const cadastrarUsuario = async (req, res) => {
 
 }
 const listarUsuarios = async(req,res)=>{
-  const resposta = await pool.query(`
+  
+  try{     
+    
+   const resposta = await pool.query(`
     SELECT id,nome,email FROM usuarios
      `)
   return res.status(200).json(resposta.rows)
+  }catch(error){
+    console.error(error)
+    return res.status(500).json({ message: 'Erro ao listar usuários' })
+  }
+  
 }
 
-const login = async (req,res) => {
-   const {email,senha}=req.body
-   if(!email || !senha){
-   return res.status(400).json({ message: 'Email ou senha Inválido' })
-   }
+const login = async (req, res) => {
+    const { email, senha } = req.body
 
-   try {    
-     const buscarUsuario = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email])
-     if(buscarUsuario.rows.length === 0){
-     return res.status(400).json({ message: 'Email ou senha inválidos' })}
+    if (!email || !senha) {
+        return res.status(400).json({ message: 'Email ou senha inválido' })
+    }
 
-     const usuarioValido = await bcrypt.compare(senha, buscarUsuario.rows[0].senha)
-    if(!usuarioValido){
-    return res.status(400).json({ message: 'Email ou senha inválidos' })
-       }
+    try {
+        const buscarUsuario = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email])
 
-    const token = jwt.sign({ id: buscarUsuario.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '8h' })
+        if (buscarUsuario.rows.length === 0) {
+            return res.status(400).json({ message: 'Email ou senha inválidos' })
+        }
 
-     return res.status(200).json({ token })     
+        const senhaValida = await bcrypt.compare(senha, buscarUsuario.rows[0].senha)
 
-   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Erro ao logar Usuario ' });
-   }
-   
+        if (!senhaValida) {
+            return res.status(400).json({ message: 'Email ou senha inválidos' })
+        }
 
-  return res.status(201).json({message:'Rota login rodando'})
+        const token = jwt.sign({ id: buscarUsuario.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '8h' })
+
+        return res.status(200).json({ token })
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: 'Erro ao logar usuário' })
+    }
 }
    
 
