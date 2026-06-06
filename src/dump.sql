@@ -9,12 +9,11 @@ id serial primary key,
 );
 
 
-create table pokemons(
-id serial primary key,
+CREATE TABLE pokemons(
+  id serial primary key,
   nome text not null,
   habilidades text not null,
   imagem text,
   apelido text,
-  usuari_id integer not null references usuarios(id)
+  usuario_id integer not null references usuarios(id)
 );
-
