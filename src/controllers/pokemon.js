@@ -41,7 +41,7 @@ const cadastrarPokemons = async(req,res)=>{
     }      
      
     try{
-        const novoPokemon = await pool.query('INSERT INTO pokemons (nome, habilidades, imagem,apelido,usuario_id) VALUES ($1, $2, $3,$4,$5)pokemons (nome, habilidades, imagem,apelido,usuario_id) VALUES ($1, $2, $3,$4,$5)', [nome, habilidades, imagem,apelido,usuarioId]);
+        const novoPokemon = await pool.query('INSERT INTO pokemons (nome, habilidades, imagem,apelido,usuario_id) VALUES ($1, $2, $3,$4,$5)', [nome, habilidades, imagem,apelido,usuarioId]);
      
         
     return res.status(201).json({ message: 'pokemon cadastrado'  })
@@ -67,10 +67,35 @@ const atualizarPokemon = async (req, res) => {
         return res.status(500).json({ message: 'Erro ao atualizar pokemon' })
     }
 }
+const buscarPokemonPorId = async (req,res)=>{
+    const{id}=req.params
+    try {
+    const pokemonEncontrado = await pool.query(`
+    SELECT 
+        pokemons.id,
+        usuarios.nome AS usuario,
+        pokemons.nome,
+        pokemons.apelido,
+        pokemons.habilidades,
+        pokemons.imagem
+    FROM pokemons
+    JOIN usuarios ON pokemons.usuario_id = usuarios.id
+    WHERE pokemons.id = $1
+    `, [id]);
+    if (pokemonEncontrado.rows.length === 0) {
+    return res.status(404).json({ message: 'Pokemon não encontrado' })
+    }
+   }catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: 'Erro ao Buscar  pokemon' })
+    }
+
+}
 
 
 module.exports = {
     listarPokemons,
     cadastrarPokemons,
-    atualizarPokemon
+    atualizarPokemon,
+    buscarPokemonPorId
 }

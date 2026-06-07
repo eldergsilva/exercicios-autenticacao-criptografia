@@ -2,7 +2,7 @@ const {cadastrarUsuario, listarUsuarios, login} = require('./controllers/usuario
 const express = require('express');
 const autenticacao = require('./middlewares/autenticacao');
  
-const { cadastrarPokemons,listarPokemons, atualizarPokemon } = require('./controllers/pokemon');
+const { cadastrarPokemons,listarPokemons, atualizarPokemon, buscarPokemonPorId } = require('./controllers/pokemon');
 const rotas = express();
 
 
@@ -15,6 +15,6 @@ rotas.get('/usuarios', listarUsuarios);
 rotas.get('/pokemons',listarPokemons);
 rotas.post('/pokemons',cadastrarPokemons)
 rotas.patch('/pokemons/:id', atualizarPokemon)
-
+rotas.get('/pokemons/:id', buscarPokemonPorId)
 module.exports = rotas;
 
