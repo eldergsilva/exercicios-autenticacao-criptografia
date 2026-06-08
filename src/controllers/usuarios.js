@@ -11,7 +11,7 @@ const cadastrarUsuario = async (req, res) => {
 
   try{
     const buscarEmail = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
-    console.log(buscarEmail.rows);
+     
     if(buscarEmail.rows.length > 0){
       return res.status(400).json({ message: 'Email já cadastrado' });
     }

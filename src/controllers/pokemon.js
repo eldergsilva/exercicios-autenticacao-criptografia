@@ -1,5 +1,5 @@
 const pool = require('../config');
-const jwt = require('jsonwebtoken')
+ 
 
 const listarPokemons = async(req,res)=>{
     try { 
@@ -24,7 +24,7 @@ const listarPokemons = async(req,res)=>{
 
     }catch(error){
     console.error(error);
-    return res.status(500).json({ message: 'Erro ao Listar usuário' });
+    return res.status(500).json({ message: 'Erro ao listar pokemons' })
   }
 
 
@@ -69,6 +69,7 @@ const atualizarPokemon = async (req, res) => {
 }
 const buscarPokemonPorId = async (req,res)=>{
     const{id}=req.params
+
     try {
     const pokemonEncontrado = await pool.query(`
     SELECT 
@@ -82,14 +83,37 @@ const buscarPokemonPorId = async (req,res)=>{
     JOIN usuarios ON pokemons.usuario_id = usuarios.id
     WHERE pokemons.id = $1
     `, [id]);
+
     if (pokemonEncontrado.rows.length === 0) {
     return res.status(404).json({ message: 'Pokemon não encontrado' })
     }
+    const pokemon = {
+    ...pokemonEncontrado.rows[0],
+    habilidades: pokemonEncontrado.rows[0].habilidades.split(', ')
+
+    }
+    return res.status(200).json(pokemon)
+
    }catch (error) {
         console.error(error)
-        return res.status(500).json({ message: 'Erro ao Buscar  pokemon' })
+    return res.status(500).json({ message: 'Erro ao Buscar  pokemon' })
     }
 
+}
+const deletarPokemon = async (req,res)=>{
+    const{id}=req.params
+    try {
+    const deletaPokemon = await pool.query('DELETE FROM pokemons WHERE id = $1', [id])
+
+    if (deletaPokemon.rowCount === 0) {
+    return res.status(404).json({ message: 'Pokemon não encontrado' })
+    }
+
+    return res.status(200).json({ message: 'Pokemon deletado com sucesso' })
+    }catch (error) {
+        console.error(error)
+    return res.status(500).json({ message: 'Erro ao deletar pokemon' })
+    }
 }
 
 
@@ -97,5 +121,6 @@ module.exports = {
     listarPokemons,
     cadastrarPokemons,
     atualizarPokemon,
-    buscarPokemonPorId
+    buscarPokemonPorId,
+    deletarPokemon
 }
