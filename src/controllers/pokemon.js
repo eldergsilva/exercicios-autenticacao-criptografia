@@ -1,7 +1,8 @@
-const pool = require('../config');
+const pool = require('../config'); 
  
 
 const listarPokemons = async(req,res)=>{
+   
     try { 
         const resposta = await pool.query(
        `SELECT 
@@ -30,7 +31,8 @@ const listarPokemons = async(req,res)=>{
 
 }
 
-const cadastrarPokemons = async(req,res)=>{     
+const cadastrarPokemons = async(req,res)=>{    
+    
      
     const {nome,habilidades,imagem,apelido}=req.body;
      
@@ -41,7 +43,7 @@ const cadastrarPokemons = async(req,res)=>{
     }      
      
     try{
-        const novoPokemon = await pool.query('INSERT INTO pokemons (nome, habilidades, imagem,apelido,usuario_id) VALUES ($1, $2, $3,$4,$5)', [nome, habilidades, imagem,apelido,usuarioId]);
+    const novoPokemon = await pool.query('INSERT INTO pokemons (nome, habilidades, imagem,apelido,usuario_id) VALUES ($1, $2, $3,$4,$5)', [nome, habilidades, imagem,apelido,usuarioId]);
      
         
     return res.status(201).json({ message: 'pokemon cadastrado'  })
@@ -52,6 +54,7 @@ const cadastrarPokemons = async(req,res)=>{
 
 }
 const atualizarPokemon = async (req, res) => {
+   
     const { apelido } = req.body
     const { id } = req.params
 
@@ -68,6 +71,7 @@ const atualizarPokemon = async (req, res) => {
     }
 }
 const buscarPokemonPorId = async (req,res)=>{
+     
     const{id}=req.params
 
     try {
@@ -101,6 +105,7 @@ const buscarPokemonPorId = async (req,res)=>{
 
 }
 const deletarPokemon = async (req,res)=>{
+ 
     const{id}=req.params
     try {
     const deletaPokemon = await pool.query('DELETE FROM pokemons WHERE id = $1', [id])
@@ -109,7 +114,7 @@ const deletarPokemon = async (req,res)=>{
     return res.status(404).json({ message: 'Pokemon não encontrado' })
     }
 
-    return res.status(200).json({ message: 'Pokemon deletado com sucesso' })
+    return res.status(204).send()
     }catch (error) {
         console.error(error)
     return res.status(500).json({ message: 'Erro ao deletar pokemon' })
